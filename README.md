@@ -38,8 +38,10 @@ Built for the [WebMCP Challenge](https://webmcp.devpost.com/).
 > decision made from records the attacker cannot write to.
 
 This is **not** a claim to solve prompt injection. Nothing here inspects a message to
-judge whether it is hostile. There is no classifier and no filter. The claim holds
-because the message is never connected to the decision in the first place.
+judge whether it is hostile. There is no classifier and no filter. That is not a claim
+that classifiers never work; it is a claim that Quarantine does not need one to decide
+whether a capability exists. The message is never connected to the decision in the first
+place.
 
 ## Restraint is the architecture, not a caveat
 
@@ -163,9 +165,11 @@ bun run corpus       # regenerates results.md; exits non-zero on failure
 bun run typecheck
 ```
 
-To see the real browser API rather than the fallback: enable
-`chrome://flags/#enable-webmcp-testing` and reload, or open the page in ChatGPT's
-in-app browser. The badge in the governance panel says which is in use.
+**No flag required.** The page detects `document.modelContext` and uses it when the
+browser provides it. When it does not, it installs its own registry so the whole product
+still works, and the badge in the governance panel says which one is live. Enabling
+`chrome://flags/#enable-webmcp-testing`, or opening the page in ChatGPT's in-app browser,
+swaps in Chrome's implementation. That is an upgrade, not a requirement.
 
 **Zero credentials.** No login, no API key, no signup.
 
