@@ -55,6 +55,9 @@ function ticketView(id: string) {
 
 const server = Bun.serve({
   port: PORT,
+  // Bind all interfaces: containers (Railway, Render, Fly) route to the container IP,
+  // not to loopback. Binding to localhost is the usual silent deploy failure.
+  hostname: '0.0.0.0',
   async fetch(req) {
     const url = new URL(req.url);
     const p = url.pathname;
