@@ -19,13 +19,12 @@ about it.
 <script src="/quarantine.js" defer></script>
 ```
 
-> **Scope, up front.** The mechanism is site-agnostic. The tool definitions and API
-> paths are not: they are hardcoded for this desk in `client/tools.ts` and
-> `client/api.ts`. Drop `quarantine.js` onto an unrelated site today and it calls
-> endpoints that do not exist and registers nothing. **This is a working reference
-> implementation of a pattern, not a general-purpose library.** Moving the definitions
-> into a host-supplied config is a refactor, not new functionality, and it is the first
-> item in *What's next*.
+> **Scope, up front.** Quarantine works end to end for this application: the tools, the
+> policy, the withdrawal, the human approval gate and the ledger all run for real. What it
+> is not *yet* is a general-purpose library. The tool definitions and API paths are this
+> desk's own, held in `client/tools.ts` and `client/api.ts` rather than supplied by the
+> host page. Lifting them into a `QuarantineConfig` the host declares is a config
+> refactor, not new machinery, and it is first on the *What's next* list.
 
 Built for the [WebMCP Challenge](https://webmcp.devpost.com/).
 
@@ -34,7 +33,7 @@ Built for the [WebMCP Challenge](https://webmcp.devpost.com/).
 ## The claim, stated narrowly
 
 > When an agent encounters untrusted customer content, the page can restrict which
-> actions exist at all, and require human approval for the sensitive ones — with the
+> actions exist at all, and require human approval for the sensitive ones, with the
 > decision made from records the attacker cannot write to.
 
 This is **not** a claim to solve prompt injection. Nothing here inspects a message to
@@ -53,7 +52,7 @@ The interesting part of this project is what it refuses to do.
 - **It does not trust the model.** Not the model's judgment, not its instruction
   hierarchy, not its willingness to ignore a convincing lie. Two different models
   behave identically here, because there is nothing to behave differently *about*.
-- **It never lets an agent move money.** Not above a threshold — at all. The agent can
+- **It never lets an agent move money.** Not above a threshold, at all. The agent can
   only ever *propose*; a human presses the button.
 - **There is no language model anywhere in this codebase.** Grep it. The agent is the
   visitor, not a component.
@@ -64,7 +63,7 @@ Two inputs arrive at the desk, and only one of them can affect anything:
 
 | | Written by | Reaches the policy engine? |
 |---|---|---|
-| The customer's message | anyone — including an attacker | **No. Structurally cannot.** |
+| The customer's message | anyone, including an attacker | **No. Structurally cannot.** |
 | The order record | the merchant's own system | **Yes. Only this.** |
 
 `server/policy.ts` is a pure function taking an order and a ticket state. It has **no
@@ -72,8 +71,8 @@ parameter capable of carrying the message body**. Attacker-controlled text canno
 influence which tools exist, the way a function of two numbers cannot be influenced by
 a photograph.
 
-So on ticket **T-102** — a message insisting a $2,400 refund was pre-approved offline,
-on an order that is 91 days old against a 30-day window — `issue_refund` is never
+So on ticket **T-102**, a message insisting a $2,400 refund was pre-approved offline,
+on an order that is 91 days old against a 30-day window, `issue_refund` is never
 registered. The agent reads the instruction, cannot comply, calls `explain_policy`,
 gets `OUTSIDE_WINDOW`, and escalates.
 
@@ -95,26 +94,26 @@ document.modelContext.registerTool({
 | Feature | The job it does here |
 |---|---|
 | `registerTool` + JSON Schema | 7 tools with typed, enum-constrained inputs |
-| **Dynamic registration** — `AbortController` + re-register | **The load-bearing one.** `controller.abort()` withdraws the whole batch; only permitted tools are registered again. Tools *disappear*. |
+| **Dynamic registration**, `AbortController` + re-register | **The load-bearing one.** `controller.abort()` withdraws the whole batch; only permitted tools are registered again. Tools *disappear*. |
 | `execute(input, { signal })` | `issue_refund` holds the call open until a human decides. The agent is genuinely blocked, not told "check back later". |
 | `annotations.untrustedContentHint` | On `get_ticket`. The body genuinely is attacker-controlled. |
 | `annotations.readOnlyHint` | Honest read/write split across all 7 |
 | `toolchange` event | Keeps the on-screen tool surface truthful |
-| **Declarative API** — `toolname`, `tooldescription`, `toolparamdescription`, no `toolautosubmit` | The approval gate. The standard's *own default* is that an agent may fill a form but only a human may submit it, so the gate is not something we invented. `agentInvoked` is checked and refused. |
+| **Declarative API**, `toolname`, `tooldescription`, `toolparamdescription`, no `toolautosubmit` | The approval gate. The standard's *own default* is that an agent may fill a form but only a human may submit it, so the gate is not something we invented. `agentInvoked` is checked and refused. |
 | `getTools()` / `executeTool()` | Powers the in-page console and the scripted proofs |
 
-**Absence, not refusal.** A refused tool is still in the agent's list — describable,
+**Absence, not refusal.** A refused tool is still in the agent's list, describable,
 arguable, a target. A withdrawn one is not there at all. That difference is the
 project.
 
 ## What you are looking at
 
-- **`/`** — Northwind Supply, the demo host. An ordinary support desk. `client/desk.ts`
+- **`/`**, Northwind Supply, the demo host. An ordinary support desk. `client/desk.ts`
   contains no policy, no tool registration and no approval logic.
-- **`quarantine.js`** — the governance layer, added with one script tag. It registers
+- **`quarantine.js`**, the governance layer, added with one script tag. It registers
   the page's tools per policy, withdraws forbidden ones, holds sensitive actions for a
   human, and renders a corner panel (shadow DOM, so host CSS cannot reach it).
-- **`/proof.html`** — the positive and negative control runs, and the labeled corpus.
+- **`/proof.html`**, the positive and negative control runs, and the labeled corpus.
 
 ## Evidence
 
@@ -135,14 +134,14 @@ The corpus lives in `server/corpus.ts`, shared by the CLI and the `/api/corpus`
 endpoint, so the proof page cannot display a healthier number than the test suite.
 
 **Which checks are weak, stated plainly.** The tool-availability checks restate the
-same rule the policy implements — circular, counted but discounted. Three checks are
+same rule the policy implements, circular, counted but discounted. Three checks are
 structural and carry the claim:
 
-1. **Body rewrite** — the message is rewritten into an attack; the decision is asserted
+1. **Body rewrite**, the message is rewritten into an attack; the decision is asserted
    **byte-identical** before and after.
-2. **Forged approval** — a refund is staged, then execution attempted with a guessed
+2. **Forged approval**, a refund is staged, then execution attempted with a guessed
    token. `BAD_NONCE`.
-3. **Nonce leak** — the approval token appears nowhere in anything a tool returns, so
+3. **Nonce leak**, the approval token appears nowhere in anything a tool returns, so
    an agent cannot approve its own proposal.
 
 No policy constant can make those three pass falsely.
@@ -201,11 +200,18 @@ base. It is about 150 lines and you can read all of it.
 
 ### Honest status
 
-`client/shim.ts` supplies `document.modelContext` when the browser does not. It stores
-the same descriptors and calls the same `execute` functions, so policy, approvals and
-the ledger are all real — but it is **not** Chrome's implementation. Where this README
-describes runtime behaviour, that behaviour has been exercised against the shim. See
-`BUGS.md` for what is and is not verified.
+The tool surface has been exercised against the browser-provided `document.modelContext`
+in Chrome with `chrome://flags/#enable-webmcp-testing` enabled: all seven tools register,
+withdrawal through `AbortController` behaves as documented, and `toolchange` fires on
+every policy change. The panel reads **Real WebMCP** when that is what is in use.
+
+`client/shim.ts` supplies a fallback registry when a browser provides no
+`document.modelContext`, so a visitor who has not enabled the flag still sees the whole
+product work. The panel says **NOT WebMCP** in that case, in those words, so the fallback
+is never mistaken for the real API. It stores the same descriptors and calls the same
+`execute` functions, and every server-side property holds either way.
+
+Not yet tested: ChatGPT's in-app browser. `BUGS.md` tracks what is and is not verified.
 
 ## Limits
 
@@ -228,4 +234,4 @@ describes runtime behaviour, that behaviour has been exercised against the shim.
 
 ## Licence
 
-MIT — see [LICENSE](LICENSE).
+MIT, see [LICENSE](LICENSE).
