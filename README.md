@@ -14,6 +14,11 @@ Northwind Supply, the support desk in this repo, is just the building Quarantine
 installed in. It's added with one script tag and the desk's own code knows nothing
 about it.
 
+```html
+<!-- the entire integration, in public/index.html -->
+<script src="/quarantine.js" defer></script>
+```
+
 > **Scope, up front.** The mechanism is site-agnostic. The tool definitions and API
 > paths are not: they are hardcoded for this desk in `client/tools.ts` and
 > `client/api.ts`. Drop `quarantine.js` onto an unrelated site today and it calls
