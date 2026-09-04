@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Northwind Supply — Support Desk</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#151b23; --panel2:#1b2330; --line:#2a3441;
+    --text:#e6edf3; --dim:#8b97a6; --accent:#58a6ff; --good:#3fb950;
+    --warn:#d29922; --bad:#f85149; --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  header{padding:12px 20px;border-bottom:1px solid var(--line);display:flex;
+    align-items:center;gap:12px;background:var(--panel)}
+  .logo{width:24px;height:24px;border-radius:6px;background:linear-gradient(135deg,#1f6feb,#58a6ff);
+    display:grid;place-items:center;font-weight:700;font-size:13px;color:#fff}
+  header h1{font-size:15px;margin:0;font-weight:600}
+  header .who{font-size:12px;color:var(--dim)}
+  header .spacer{flex:1}
+  a.proof{font-size:12.5px;color:var(--accent);text-decoration:none;border:1px solid var(--line);
+    padding:6px 12px;border-radius:6px}
+  a.proof:hover{border-color:var(--accent)}
+  button{font:inherit;background:var(--panel2);color:var(--text);border:1px solid var(--line);
+    border-radius:6px;padding:6px 12px;cursor:pointer}
+  button:hover{border-color:var(--accent)}
+  button.primary{background:#1f6feb;border-color:#1f6feb;color:#fff;font-weight:600}
+
+  main{display:grid;grid-template-columns:290px 1fr;gap:1px;background:var(--line);
+    height:calc(100vh - 49px)}
+  section{background:var(--bg);overflow-y:auto;padding:14px 16px}
+  .queue h2{font-size:11px;text-transform:uppercase;letter-spacing:.9px;color:var(--dim);
+    margin:0 0 10px;font-weight:600}
+
+  .tick{padding:10px 11px;border:1px solid var(--line);border-radius:8px;margin-bottom:7px;cursor:pointer}
+  .tick:hover{border-color:var(--accent)}
+  .tick.sel{border-color:var(--accent);background:var(--panel)}
+  .tick .sub{font-weight:600;font-size:13px}
+  .tick .prev{color:var(--dim);font-size:12px;margin-top:3px;overflow:hidden;text-overflow:ellipsis;
+    white-space:nowrap}
+  .tick .meta{color:var(--dim);font-size:11.5px;margin-top:5px;display:flex;gap:7px;align-items:center}
+  .pill{font:10.5px var(--mono);padding:1px 7px;border-radius:99px;border:1px solid var(--line);color:var(--dim)}
+  .pill.new{color:var(--accent);border-color:#1f4e79}
+  .pill.triaged{color:var(--warn);border-color:#6b5312}
+  .pill.resolved{color:var(--good);border-color:#1f6f34}
+  .pill.escalated{color:var(--bad);border-color:#6e2b28}
+
+  .thread{max-width:760px}
+  .subject{font-size:19px;font-weight:600;margin:0 0 4px}
+  .crumbs{color:var(--dim);font-size:12.5px;margin-bottom:16px;display:flex;gap:8px;align-items:center}
+  .order{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:12px 14px;
+    margin-bottom:16px}
+  .order h3{margin:0 0 9px;font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--dim)}
+  .order .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(115px,1fr));gap:11px}
+  .order .f b{display:block;font-size:11.5px;color:var(--dim);font-weight:500;margin-bottom:1px}
+  .order .f span{font:13px var(--mono)}
+
+  .msg{display:flex;gap:11px;margin-bottom:14px}
+  .av{width:32px;height:32px;border-radius:99px;background:var(--panel2);border:1px solid var(--line);
+    display:grid;place-items:center;font-size:12px;color:var(--dim);flex:none}
+  .bub{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:9px;overflow:hidden}
+  .bub .from{display:flex;justify-content:space-between;gap:10px;padding:8px 12px;
+    border-bottom:1px solid var(--line);font-size:12px;flex-wrap:wrap}
+  .bub .from b{font-size:12.5px}
+  .bub .from .src{font:10.5px var(--mono);color:var(--dim)}
+  .bub pre{margin:0;padding:12px;white-space:pre-wrap;word-break:break-word;
+    font:13px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#c9d3de}
+  .msg.agent .bub{border-color:#1f4e79}
+  .msg.agent .av{color:var(--accent);border-color:#1f4e79}
+
+  .outcome{border:1px solid var(--line);border-radius:9px;padding:11px 13px;margin-bottom:14px;
+    font-size:13px;background:var(--panel)}
+  .outcome.resolved{border-color:#1f6f34;background:#0f1c13}
+  .outcome.escalated{border-color:#6e2b28;background:#1a1113}
+  .outcome b{display:block;margin-bottom:2px}
+
+  .act{border:1px solid var(--line);border-radius:9px;background:var(--panel);padding:12px 14px;
+    margin-bottom:12px}
+  .act b{display:block;font-size:13.5px;margin-bottom:2px}
+  .act p{margin:0 0 10px;font-size:12.5px;color:var(--dim)}
+  .act.closed{color:var(--dim);font-size:13px}
+  .act .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  select{padding:7px 9px;border-radius:6px;border:1px solid var(--line);background:var(--bg);
+    color:var(--text);font:inherit}
+  .flash{border-radius:7px;padding:9px 12px;margin-bottom:11px;font-size:12.5px;
+    border:1px solid #1f6f34;background:#0f1c13;color:var(--good)}
+  .flash.bad{border-color:#6e2b28;background:#1a1113;color:var(--bad)}
+  .composer{border:1px solid var(--line);border-radius:9px;background:var(--panel);padding:12px}
+  .composer textarea{width:100%;min-height:76px;padding:9px 11px;border-radius:7px;
+    border:1px solid var(--line);background:var(--bg);color:var(--text);font:inherit;resize:vertical}
+  .composer .row{display:flex;gap:8px;margin-top:9px;align-items:center;flex-wrap:wrap}
+  .composer .note{font-size:11.5px;color:var(--dim);margin-left:auto}
+  @media (max-width:900px){main{grid-template-columns:1fr;height:auto}}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">N</span>
+  <h1>Northwind Supply</h1>
+  <span class="who">Support desk · signed in as Ava R.</span>
+  <span class="spacer"></span>
+  <a class="proof" href="/proof.html">Security proof &amp; tests →</a>
+</header>
+
+<main>
+  <section class="queue">
+    <h2>Open queue</h2>
+    <div id="tickets"></div>
+  </section>
+
+  <section>
+    <div class="thread" id="thread"></div>
+  </section>
+</main>
+
+<!--
+  One line adds the agent governance layer. It registers this page's WebMCP tools
+  according to the site's policy, withdraws the ones policy forbids, and holds
+  sensitive actions for a human. Nothing else on this page knows it is there.
+
+  Its tool definitions are currently specific to this desk — see the "Honest scope"
+  section of the README.
+-->
+<script src="/quarantine.js" defer></script>
+<script type="module" src="/dist/desk.js"></script>
+</body>
+</html>

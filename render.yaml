@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: quarantine
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/state
+    envVars:
+      - key: PORT
+        value: 3000

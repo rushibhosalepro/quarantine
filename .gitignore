@@ -1,0 +1,9 @@
+node_modules/
+public/dist/
+.DS_Store
+
+# held back until verified against a real WebMCP runtime
+PROJECT.md
+DEVPOST.md
+BUGS.md
+results.md

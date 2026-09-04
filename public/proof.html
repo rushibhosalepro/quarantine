@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Quarantine — security proof</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#151b23; --panel2:#1b2330; --line:#2a3441;
+    --text:#e6edf3; --dim:#8b97a6; --accent:#58a6ff; --good:#3fb950;
+    --warn:#d29922; --bad:#f85149; --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font:14px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  header{padding:12px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;
+    gap:12px;background:var(--panel)}
+  header h1{font-size:15px;margin:0;font-weight:600}
+  header .spacer{flex:1}
+  a{color:var(--accent);text-decoration:none}
+  a.back{font-size:12.5px;border:1px solid var(--line);padding:6px 12px;border-radius:6px}
+  a.back:hover{border-color:var(--accent)}
+  .wrap{max-width:860px;margin:0 auto;padding:22px 20px 70px}
+  h2{font-size:17px;margin:26px 0 4px}
+  .lede{color:var(--dim);font-size:13.5px;margin:0 0 14px}
+  .claim{border:1px solid var(--line);border-left:3px solid var(--accent);background:var(--panel);
+    border-radius:8px;padding:13px 16px;margin:0 0 8px;font-size:14px}
+  button{font:inherit;background:var(--panel2);color:var(--text);border:1px solid var(--line);
+    border-radius:6px;padding:9px 16px;cursor:pointer;font-weight:600}
+  button:hover{border-color:var(--accent)}
+  button.primary{background:#1f6feb;border-color:#1f6feb;color:#fff}
+  button:disabled{opacity:.5;cursor:default}
+  .runbar{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+  .runbar .hint{font-size:12.5px;color:var(--dim)}
+
+  .verdict{border-radius:9px;padding:14px 16px;margin-bottom:12px;border:1px solid}
+  .verdict h3{margin:0 0 5px;font-size:16px}
+  .verdict p{margin:0;font-size:13px;color:var(--dim)}
+  .verdict.blocked{background:#0f1c13;border-color:#1f6f34}
+  .verdict.blocked h3{color:var(--good)}
+  .verdict.held{background:#1d1a0f;border-color:#6b5312}
+  .verdict.held h3{color:var(--warn)}
+
+  .step{display:flex;gap:10px;padding:9px 11px;border:1px solid var(--line);border-radius:8px;
+    margin-bottom:6px;background:var(--panel);opacity:.35;transition:opacity .25s}
+  .step.running,.step.done{opacity:1}
+  .step.running{border-color:var(--accent)}
+  .step .num{flex:none;width:20px;height:20px;border-radius:99px;border:1px solid var(--line);
+    font:11px/20px var(--mono);text-align:center;color:var(--dim)}
+  .step.done .num{background:#0f1c13;border-color:#1f6f34;color:var(--good)}
+  .step .say{font-size:13px}
+  .step .why{font-size:12px;color:var(--dim)}
+  .step .res{font:11.5px/1.5 var(--mono);color:var(--accent);margin-top:6px;background:var(--bg);
+    border:1px solid var(--line);border-radius:6px;padding:6px 8px}
+  .step .res.err{color:var(--bad)}
+
+  table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:10px}
+  th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--dim);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.6px}
+  td code{font:11.5px var(--mono);color:var(--dim)}
+  .ok{color:var(--good);font-weight:600}
+  .fail{color:var(--bad);font-weight:600}
+  .kind{font:10.5px var(--mono);padding:1px 7px;border-radius:99px;border:1px solid var(--line);
+    color:var(--dim);white-space:nowrap}
+  .kind.neg{color:var(--warn);border-color:#6b5312}
+  .rates{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin:12px 0}
+  .rate{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:12px 14px}
+  .rate b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--dim)}
+  .rate .n{font:23px var(--mono);margin-top:4px}
+  .rate.neg .n{color:var(--good)}
+  .caveat{border:1px dashed var(--line);border-radius:8px;padding:12px 14px;font-size:12.5px;
+    color:var(--dim);margin-top:14px}
+  .caveat b{color:var(--warn)}
+  code.inline{font:12.5px var(--mono);color:var(--accent)}
+</style>
+</head>
+<body>
+<header>
+  <h1>Quarantine — security proof</h1>
+  <span class="spacer"></span>
+  <a class="back" href="/">← Back to the support desk</a>
+</header>
+
+<div class="wrap">
+  <p class="claim">
+    <b>The claim.</b> When an agent encounters untrusted customer content, the page can restrict
+    which actions exist at all, and require human approval for the sensitive ones — with the decision
+    made from records the attacker cannot write to.
+  </p>
+  <p class="lede">Not “we detect prompt injection.” Nothing here inspects a message to judge whether
+    it is hostile. Everything below holds because the message was never connected to the decision.</p>
+
+  <h2>Watch it happen</h2>
+  <p class="lede">Both runs drive the real registered tools through
+    <code class="inline">document.modelContext.executeTool()</code>. Nothing is mocked.</p>
+  <div class="runbar">
+    <button class="primary" id="runAttack">▶ Negative control — the attack</button>
+    <button id="runLegit">▶ Positive control — an honest refund</button>
+    <span class="hint">~15 seconds each. The governance panel is bottom-right.</span>
+  </div>
+  <div id="verdict"></div>
+  <div id="narration"></div>
+
+  <h2>The corpus</h2>
+  <p class="lede">Eight tickets: five legitimate, three carrying injected instructions. Both rates are
+    published — what was handled, and what was correctly refused.</p>
+  <div class="rates" id="rates"></div>
+  <div id="table"></div>
+
+  <div class="caveat" id="caveat"></div>
+</div>
+
+<script src="/quarantine.js" defer></script>
+<script type="module" src="/dist/proof.js"></script>
+</body>
+</html>
