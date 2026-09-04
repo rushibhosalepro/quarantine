@@ -1,6 +1,6 @@
 # Quarantine
 
-**Injection defences try to spot the attack. Quarantine deletes the tool it's aiming at.**
+**You can't trick an agent into using a tool it doesn't have.**
 
 Quarantine sits between a visiting agent and everything a site can actually do. The agent
 belongs to the user, not to the company. It's whatever they brought with them, and the

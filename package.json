@@ -1,7 +1,7 @@
 {
   "name": "quarantine",
   "version": "1.0.0",
-  "description": "A capability firewall for WebMCP sites. Tools an agent must not use are never registered, so an injected instruction has nothing to aim at.",
+  "description": "You can't trick an agent into using a tool it doesn't have. A capability firewall for WebMCP sites.",
   "license": "MIT",
   "type": "module",
   "scripts": {
