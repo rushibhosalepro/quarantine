@@ -1,7 +1,7 @@
 {
   "name": "quarantine",
   "version": "1.0.0",
-  "description": "A support desk where the page decides what an agent may act on. WebMCP Challenge submission.",
+  "description": "A capability firewall for WebMCP sites. Tools an agent must not use are never registered, so an injected instruction has nothing to aim at.",
   "license": "MIT",
   "type": "module",
   "scripts": {

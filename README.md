@@ -1,11 +1,18 @@
 # Quarantine
 
-**The agent reads the mail. The page decides what it may act on.**
+**Injection defences try to spot the attack. Quarantine deletes the tool it's aiming at.**
 
-A support desk where an AI agent's capabilities are computed from merchant records —
-never from the customer's message. Tools the agent must not use are not disabled.
-**They are never registered**, so they do not appear in `getTools()` and there is
-nothing to talk the agent into.
+Quarantine sits between a visiting agent and everything a site can actually do. The agent
+belongs to the user, not to the company. It's whatever they brought with them, and the
+site can't audit it, can't update it, and doesn't know which model it is. So instead of
+trying to trust the visitor, the page decides what to hand over.
+
+Tools the agent must not use are not disabled. **They are never registered**, so they do
+not appear in `getTools()` and there is nothing to talk the agent into.
+
+Northwind Supply, the support desk in this repo, is just the building Quarantine is
+installed in. It's added with one script tag and the desk's own code knows nothing
+about it.
 
 Built for the [WebMCP Challenge](https://webmcp.devpost.com/).
 
@@ -87,7 +94,7 @@ project.
 
 ## What you are looking at
 
-- **`/`** — Northwind Supply, a support desk. An ordinary product. `client/desk.ts`
+- **`/`** — Northwind Supply, the demo host. An ordinary support desk. `client/desk.ts`
   contains no policy, no tool registration and no approval logic.
 - **`quarantine.js`** — the governance layer, added with one script tag. It registers
   the page's tools per policy, withdraws forbidden ones, holds sensitive actions for a
