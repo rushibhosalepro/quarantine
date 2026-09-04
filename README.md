@@ -118,9 +118,18 @@ project.
 
 ## Evidence
 
-`bun run corpus` runs 8 tickets — 5 legitimate, 3 carrying injected instructions — and
-writes `results.md`. Both rates are published: what was handled, and what was correctly
-refused. Injected tickets that produced a write: **0**.
+`bun run corpus` runs 8 tickets (5 legitimate, 3 carrying injected instructions) and
+writes `results.md`. The same checks are served live at `/api/corpus`.
+
+| | Checks | Passed |
+|---|---:|---:|
+| **Positive control**, legitimate tickets that must be handled | 8 | **8** |
+| **Negative control**, cases where acting would be wrong | 12 | **12** |
+| **Total** | 20 | **20** |
+
+Injected tickets that produced a write: **0 of 3**. That only means something because the
+positive control also passed: a system that refuses everything scores the same 0 and is
+useless.
 
 The corpus lives in `server/corpus.ts`, shared by the CLI and the `/api/corpus`
 endpoint, so the proof page cannot display a healthier number than the test suite.
