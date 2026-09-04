@@ -14,6 +14,14 @@ Northwind Supply, the support desk in this repo, is just the building Quarantine
 installed in. It's added with one script tag and the desk's own code knows nothing
 about it.
 
+> **Scope, up front.** The mechanism is site-agnostic. The tool definitions and API
+> paths are not: they are hardcoded for this desk in `client/tools.ts` and
+> `client/api.ts`. Drop `quarantine.js` onto an unrelated site today and it calls
+> endpoints that do not exist and registers nothing. **This is a working reference
+> implementation of a pattern, not a general-purpose library.** Moving the definitions
+> into a host-supplied config is a refactor, not new functionality, and it is the first
+> item in *What's next*.
+
 Built for the [WebMCP Challenge](https://webmcp.devpost.com/).
 
 ---
@@ -100,18 +108,6 @@ project.
   the page's tools per policy, withdraws forbidden ones, holds sensitive actions for a
   human, and renders a corner panel (shadow DOM, so host CSS cannot reach it).
 - **`/proof.html`** — the positive and negative control runs, and the labeled corpus.
-
-### Honest scope of the "drop-in"
-
-The **mechanism** is site-agnostic: ask a policy endpoint, withdraw and re-register,
-hold risky calls, audit everything. The **tool definitions and API paths are currently
-hardcoded** for this support desk in `client/tools.ts` and `client/api.ts`. Dropping
-`quarantine.js` onto an unrelated site today would call endpoints that do not exist and
-register nothing.
-
-So: a working reference implementation of a pattern, not yet a general-purpose library.
-Making the host page declare its own tools and endpoints is a config refactor, not new
-functionality — see *What's next*.
 
 ## Evidence
 
