@@ -86,6 +86,9 @@ button.no{background:transparent;border-color:#6e2b28;color:#f85149}
 .led.staged{border-color:#d29922}
 .env{font-size:10.5px;color:#8b97a6;padding:7px 12px;border-top:1px solid #2a3441;background:#11161d}
 .env code{color:#58a6ff}
+.env b.warn{color:#d29922}
+.env b.good{color:#3fb950}
+.env{line-height:1.5}
 `;
 
 let root: ShadowRoot;
@@ -167,9 +170,13 @@ export async function paint() {
 
   const dot = root.querySelector('.dotstat')!;
   dot.classList.toggle('shim', usingShim);
+  // A judge must never mistake the fallback for WebMCP itself. Say so plainly.
   $('env').innerHTML = usingShim
-    ? 'Local registry shim — enable <code>chrome://flags/#enable-webmcp-testing</code> for the browser API'
-    : 'Using the browser-provided <code>document.modelContext</code>';
+    ? '<b class="warn">NOT WebMCP.</b> This browser provided no <code>document.modelContext</code>, ' +
+      'so the page installed its own fallback registry. Same tools, same policy, same approvals. ' +
+      'For the real API, enable <code>chrome://flags/#enable-webmcp-testing</code> or open this in ' +
+      "ChatGPT's browser."
+    : '<b class="good">Real WebMCP.</b> Using the browser-provided <code>document.modelContext</code>.';
 }
 
 function renderApproval(pending: { id: string; amount: number; ticketId: string; justification: string } | null) {
