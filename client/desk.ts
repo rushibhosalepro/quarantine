@@ -182,6 +182,16 @@ function wireActions(v: TicketView) {
   });
 }
 
+// Anyone can drive this demo into a finished state. Give them a way back.
+document.getElementById('resetDemo')?.addEventListener('click', async () => {
+  await api.reset();
+  selected = 'T-101';
+  snapshot = '';
+  await Q()?.focus(selected);
+  await refresh();
+  window.dispatchEvent(new CustomEvent('quarantine:changed'));
+});
+
 window.addEventListener('quarantine:ready', () => void Q()?.focus(selected));
 window.addEventListener('q:refresh', () => void refresh());
 void refresh();
